@@ -120,6 +120,7 @@ inline bool IsSpace(char ch)
 #include "application.h"
 #include "applicationmanager.h"
 #include "inprocessapplication.h"
+#include "inprocessstoredcontext.h"
 #include "outprocessapplication.h"
 #include "resource.h"
 #include "path.h"

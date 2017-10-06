@@ -14,6 +14,7 @@ VOID
 register_callbacks(
     _In_ PFN_REQUEST_HANDLER request_handler,
     _In_ PFN_SHUTDOWN_HANDLER shutdown_handler,
+    _In_ PFN_MANAGED_CONTEXT_HANDLER managed_context_handler,
     _In_ VOID* pvRequstHandlerContext,
     _In_ VOID* pvShutdownHandlerContext
 )
@@ -21,6 +22,7 @@ register_callbacks(
     IN_PROCESS_APPLICATION::GetInstance()->SetCallbackHandles(
         request_handler,
         shutdown_handler,
+        managed_context_handler,
         pvRequstHandlerContext,
         pvShutdownHandlerContext
     );
@@ -29,47 +31,60 @@ register_callbacks(
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HTTP_REQUEST*
 http_get_raw_request(
-    _In_ IHttpContext* pHttpContext
+    _In_ INPROCESS_STORED_CONTEXT* storedContext
 )
 {
-    return pHttpContext->GetRequest()->GetRawHttpRequest();
+    return storedContext->QueryHttpContext()->GetRequest()->GetRawHttpRequest();
 }
 
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HTTP_RESPONSE*
 http_get_raw_response(
-    _In_ IHttpContext* pHttpContext
+    _In_ INPROCESS_STORED_CONTEXT* storedContext
 )
 {
-    return pHttpContext->GetResponse()->GetRawHttpResponse();
+    return storedContext->QueryHttpContext()->GetResponse()->GetRawHttpResponse();
 }
 
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT VOID http_set_response_status_code(
-    _In_ IHttpContext* pHttpContext,
+    _In_ INPROCESS_STORED_CONTEXT* storedContext,
     _In_ USHORT statusCode,
     _In_ PCSTR pszReason
 )
 {
-    pHttpContext->GetResponse()->SetStatus(statusCode, pszReason);
+    storedContext->QueryHttpContext()->GetResponse()->SetStatus(statusCode, pszReason);
 }
 
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HRESULT
 http_post_completion(
-    _In_ IHttpContext* pHttpContext
+    _In_ INPROCESS_STORED_CONTEXT* storedContext
 )
 {
-    return pHttpContext->PostCompletion(0);
+    return storedContext->QueryHttpContext()->PostCompletion(0);
+}
+
+EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
+HRESULT
+http_set_managed_context(
+    _In_ IHttpContext* pHttpContext,
+    _In_ PVOID pvManagedContext,
+    _In_ VOID ** storedContext
+)
+{
+    INPROCESS_STORED_CONTEXT* context = new INPROCESS_STORED_CONTEXT(pHttpContext, pvManagedContext);
+    *storedContext = context;
+    return S_OK;
 }
 
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 VOID
 http_indicate_completion(
-    _In_ IHttpContext* pHttpContext,
+    _In_ INPROCESS_STORED_CONTEXT* storedContext,
     _In_ REQUEST_NOTIFICATION_STATUS notificationStatus
 )
 {
-    pHttpContext->IndicateCompletion(notificationStatus);
+    storedContext->QueryHttpContext()->IndicateCompletion(notificationStatus);
 }
 
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
@@ -104,7 +119,7 @@ http_get_application_full_path()
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HRESULT
 http_read_request_bytes(
-    _In_ IHttpContext* pHttpContext,
+    _In_ INPROCESS_STORED_CONTEXT* storedContext,
     _In_ CHAR* pvBuffer,
     _In_ DWORD cbBuffer,
     _In_ PFN_ASYNC_COMPLETION pfnCompletionCallback,
@@ -113,7 +128,7 @@ http_read_request_bytes(
     _In_ BOOL* pfCompletionPending
 )
 {
-    IHttpRequest3 *pHttpRequest = (IHttpRequest3*)pHttpContext->GetRequest();
+    IHttpRequest3 *pHttpRequest = (IHttpRequest3*)storedContext->QueryHttpContext()->GetRequest();
 
     BOOL fAsync = TRUE;
 
@@ -138,7 +153,7 @@ http_read_request_bytes(
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HRESULT
 http_write_response_bytes(
-    _In_ IHttpContext* pHttpContext,
+    _In_ INPROCESS_STORED_CONTEXT* storedContext,
     _In_ HTTP_DATA_CHUNK* pDataChunks,
     _In_ DWORD nChunks,
     _In_ PFN_ASYNC_COMPLETION pfnCompletionCallback,
@@ -146,8 +161,7 @@ http_write_response_bytes(
     _In_ BOOL* pfCompletionExpected
 )
 {
-    IHttpResponse2 *pHttpResponse = (IHttpResponse2*)pHttpContext->GetResponse();
-
+    IHttpResponse2 *pHttpResponse = (IHttpResponse2*)storedContext->QueryHttpContext()->GetResponse();
     BOOL fAsync = TRUE;
     BOOL fMoreData = TRUE;
     DWORD dwBytesSent;
@@ -168,13 +182,13 @@ http_write_response_bytes(
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HRESULT
 http_flush_response_bytes(
-    _In_ IHttpContext* pHttpContext,
+    _In_ INPROCESS_STORED_CONTEXT* storedContext,
     _In_ PFN_ASYNC_COMPLETION pfnCompletionCallback,
     _In_ VOID* pvCompletionContext,
     _In_ BOOL* pfCompletionExpected
 )
 {
-    IHttpResponse2 *pHttpResponse = (IHttpResponse2*)pHttpContext->GetResponse();
+    IHttpResponse2 *pHttpResponse = (IHttpResponse2*)storedContext->QueryHttpContext()->GetResponse();
 
     BOOL fAsync = TRUE;
     BOOL fMoreData = TRUE;
@@ -287,6 +301,7 @@ VOID
 IN_PROCESS_APPLICATION::SetCallbackHandles(
     _In_ PFN_REQUEST_HANDLER request_handler,
     _In_ PFN_SHUTDOWN_HANDLER shutdown_handler,
+    _In_ PFN_MANAGED_CONTEXT_HANDLER managed_context_handler,
     _In_ VOID* pvRequstHandlerContext,
     _In_ VOID* pvShutdownHandlerContext
 )
@@ -295,6 +310,8 @@ IN_PROCESS_APPLICATION::SetCallbackHandles(
     m_RequstHandlerContext = pvRequstHandlerContext;
     m_ShutdownHandler = shutdown_handler;
     m_ShutdownHandlerContext = pvShutdownHandlerContext;
+
+    m_ManagedContextHandler = managed_context_handler;
 
     // Initialization complete
     SetEvent(m_pInitalizeEvent);
