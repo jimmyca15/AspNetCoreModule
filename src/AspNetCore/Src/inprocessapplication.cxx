@@ -31,10 +31,10 @@ register_callbacks(
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
 HTTP_REQUEST*
 http_get_raw_request(
-    _In_ INPROCESS_STORED_CONTEXT* storedContext
+    _In_ IHttpContext* pHttpContext
 )
 {
-    return storedContext->QueryHttpContext()->GetRequest()->GetRawHttpRequest();
+    return pHttpContext->GetRequest()->GetRawHttpRequest();
 }
 
 EXTERN_C __MIDL_DECLSPEC_DLLEXPORT
