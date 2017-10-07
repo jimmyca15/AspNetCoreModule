@@ -65,7 +65,6 @@ public:
         return s_Application;
     }
 
-
 private:
     // Thread executing the .NET Core process
     HANDLE                          m_hThread;

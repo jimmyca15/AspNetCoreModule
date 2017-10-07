@@ -161,21 +161,16 @@ http_write_response_bytes(
     _In_ BOOL* pfCompletionExpected
 )
 {
-    IHttpResponse2 *pHttpResponse = (IHttpResponse2*)storedContext->QueryHttpContext()->GetResponse();
+    IHttpResponse *pHttpResponse = (IHttpResponse*)storedContext->QueryHttpContext()->GetResponse();
     BOOL fAsync = TRUE;
     BOOL fMoreData = TRUE;
-    DWORD dwBytesSent;
-
-    HRESULT hr = pHttpResponse->WriteEntityChunks(
-        pDataChunks,
-        nChunks,
-        fAsync,
-        fMoreData,
-        pfnCompletionCallback,
-        pvCompletionContext,
-        &dwBytesSent,
-        pfCompletionExpected);
-
+    HRESULT hr;
+    // TODO check the perf??
+    for (int i = 0; i < nChunks; i++)
+    {
+        hr = pHttpResponse->WriteEntityChunkByReference(&pDataChunks[i]);
+    }
+    pfnCompletionCallback((IHttpContext3*)storedContext->QueryHttpContext(), 0, pvCompletionContext);
     return hr;
 }
 
