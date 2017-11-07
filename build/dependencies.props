@@ -6,11 +6,11 @@
     <InternalAspNetCoreSdkPackageVersion>2.1.0-preview1-15549</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftAspNetCoreAllPackageVersion>2.1.0-preview1-27424</MicrosoftAspNetCoreAllPackageVersion>
     <MicrosoftAspNetCoreTestingPackageVersion>2.1.0-preview1-27474</MicrosoftAspNetCoreTestingPackageVersion>
-    <MicrosoftExtensionsLoggingConsolePackageVersion>1.2.0-preview1-24140</MicrosoftExtensionsLoggingConsolePackageVersion>
-    <MicrosoftExtensionsLoggingDebugPackageVersion>1.2.0-preview1-24140</MicrosoftExtensionsLoggingDebugPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>1.2.0-preview1-24140</MicrosoftExtensionsLoggingPackageVersion>
-    <MicrosoftExtensionsPlatformAbstractionsPackageVersion>1.2.0-preview1-24140</MicrosoftExtensionsPlatformAbstractionsPackageVersion>
-    <MicrosoftNetHttpHeadersPackageVersion>1.2.0-preview1-24140</MicrosoftNetHttpHeadersPackageVersion>
+    <MicrosoftExtensionsLoggingConsolePackageVersion>1.1.0</MicrosoftExtensionsLoggingConsolePackageVersion>
+    <MicrosoftExtensionsLoggingDebugPackageVersion>1.1.0</MicrosoftExtensionsLoggingDebugPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>1.1.0</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsPlatformAbstractionsPackageVersion>1.1.0</MicrosoftExtensionsPlatformAbstractionsPackageVersion>
+    <MicrosoftNetHttpHeadersPackageVersion>1.1.0</MicrosoftNetHttpHeadersPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftWebAdministrationPackageVersion>7.0.0</MicrosoftWebAdministrationPackageVersion>
     <SystemManagementAutomationDllPackageVersion>10.0.10586</SystemManagementAutomationDllPackageVersion>
